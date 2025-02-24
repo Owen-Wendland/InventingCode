@@ -8,6 +8,8 @@ bool but2 = False
 bool but3 = False
 bool but4 = False
 
+int rerate = 60
+
 void setup() {
   lcd.begin(16, 2);
   Serial.begin(9600);
@@ -55,5 +57,6 @@ void loop() {
     }
     lcd.begin(16, 2);
     lcd.print("1",but1,"2",but2,"3",but3,"4",but4);
+    delay(1000/rerate)
   }
 }
