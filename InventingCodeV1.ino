@@ -19,6 +19,8 @@ int ac[4] = {0,1,0,0};
 int ad[4] = {0,0,1,0};
 int ae[4] = {0,0,0,1};
 
+int time = 0;
+
 int rerate = 60;
 
 int currentVal = 1;
@@ -84,11 +86,14 @@ void loop() {
   lcd.print(d);
 
   //Serial.println(((analogRead(1)*1100)/(1024)-58));
-  int translation = int(analogRead(1)*(0.472));
-  lcd.setCursor(4, 0);
-  String tempere = "temp:"+String(translation);
-  lcd.print(tempere);
+  if(time % rerate == 0){
+    int translation = int(analogRead(1)*(0.472));
+    lcd.setCursor(4, 0);
+    String tempere = "temp:"+String(translation);
+    lcd.print(tempere);
+  }
   delay(1000/rerate);
+  time += 1;
 }
 /*
 int *changed(int currentList[], int oldList[]){
