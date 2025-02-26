@@ -83,6 +83,11 @@ void loop() {
   lcd.setCursor(13, 1);
   lcd.print(d);
 
+  //Serial.println(((analogRead(1)*1100)/(1024)-58));
+  int translation = int(analogRead(1)*(0.472));
+  lcd.setCursor(4, 0);
+  String tempere = "temp:"+String(translation);
+  lcd.print(tempere);
   delay(1000/rerate);
 }
 /*
