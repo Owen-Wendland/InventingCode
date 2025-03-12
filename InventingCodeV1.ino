@@ -35,6 +35,14 @@ void readMsg(size_t len)
   }
   Serial.println("");
 }
+
+#include <Servo.h>
+
+Servo testservo;
+
+uint32_t next;
+int servoLoc = -180;
+
 const int rs = 13, en = 12, d4 = 11, d5 = 10, d6 = 9, d7 = 8;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
@@ -63,7 +71,7 @@ int vals[4] = {0,0,0,0};
 int oldVals[4] = {0,0,0,0};
 
 void setup() {
-  char* data = "";
+  testservo.attach(7, 1000, 2000);
   lcd.begin(16, 2);
   Serial.begin(9600);
   for(int pin = 2; pin <= 5; pin++){
@@ -73,13 +81,15 @@ void setup() {
 }
 
 void loop() {
+  servoLoc = analogRead(2)/5.68333333;
+  testservo.write(servoLoc);
   vals[0] = !digitalRead(2);
   vals[1] = !digitalRead(3);
   vals[2] = !digitalRead(4);
   vals[3] = !digitalRead(5);
 
-  if (vals != aa){
-    erase();
+  if (vals[0]+vals[1]+vals[2]+vals[3] > 0){
+    char* data = "";
     if (oldVals[0] != vals[0]){
       data = "1";
       oldVals[0] = ab[0];
@@ -108,7 +118,14 @@ void loop() {
       oldVals[2] = ae[2];
       oldVals[3] = ae[3];
     }
-    writeMsg(data, 2);
+    writeMsg(data, 1);
+    while(vals[0]+vals[1]+vals[2]+vals[3] > 0){
+      delay(1000/rerate);
+      vals[0] = !digitalRead(2);
+      vals[1] = !digitalRead(3);
+      vals[2] = !digitalRead(4);
+      vals[3] = !digitalRead(5);
+    }
   }
 
   //*oldVals = changed(vals, oldVals);
@@ -133,8 +150,9 @@ void loop() {
     lcd.setCursor(4, 0);
     String tempere = "temp:"+String(translation);
     lcd.print(tempere);
+    readMsg(1);
+    Serial.println(testservo.read());
   }
-  readMsg(12);
   delay(1000/rerate);
   time += 1;
 }
