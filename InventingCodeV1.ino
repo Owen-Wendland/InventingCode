@@ -4,14 +4,14 @@
 void erase(void)
 {
   for (int i = 0 ; i < EEPROM.length() ; i++)
-	EEPROM.write(i, 0);
+  EEPROM.write(i, 0);
 }
 
 void printMessage(byte* first, size_t len)
 {
   for (int i = 0; i < len; i++)
   {
-	Serial.print((char)first[i]);
+  Serial.print((char)first[i]);
   }
 }
 
@@ -19,7 +19,7 @@ void writeMsg(byte* first, size_t len)
 {
   for(int i = 0; i < len; i++)
   {
-	EEPROM.write(i, first[i]);
+  EEPROM.write(i, first[i]);
   }
 }
 
@@ -30,8 +30,8 @@ void readMsg(size_t len)
   Serial.print("Message: ");
   for(int i = 0; i < len; i++)
   {
-	res = EEPROM.read(i);
-	Serial.print((char)res);
+  res = EEPROM.read(i);
+  Serial.print((char)res);
   }
   Serial.println("");
 }
@@ -69,6 +69,8 @@ int rerate = 60;
 int currentVal = 1;
 int vals[4] = {0,0,0,0};
 int oldVals[4] = {0,0,0,0};
+int lastBut = 5;
+int lastBut2 = 0;
 
 void setup() {
   testservo.attach(7, 1000, 2000);
@@ -87,7 +89,7 @@ void loop() {
   vals[1] = !digitalRead(3);
   vals[2] = !digitalRead(4);
   vals[3] = !digitalRead(5);
-
+  
   if (vals[0]+vals[1]+vals[2]+vals[3] > 0){
     char* data = "";
     if (oldVals[0] != vals[0]){
@@ -96,29 +98,39 @@ void loop() {
       oldVals[1] = ab[1];
       oldVals[2] = ab[2];
       oldVals[3] = ab[3];
+      lastBut = 1;
     }
-    if (oldVals[1] != vals[1]){
+    else if (oldVals[1] != vals[1]){
       data = "2";
       oldVals[0] = ac[0];
       oldVals[1] = ac[1];
       oldVals[2] = ac[2];
       oldVals[3] = ac[3];
+      lastBut = 2;
     }
-    if (oldVals[2] != vals[2]){
+    else if (oldVals[2] != vals[2]){
       data = "3";
       oldVals[0] = ad[0];
       oldVals[1] = ad[1];
       oldVals[2] = ad[2];
       oldVals[3] = ad[3];
+      lastBut = 3;
     }
-    if (oldVals[3] != vals[3]){
+    else if (oldVals[3] != vals[3]){
       data = "4";
       oldVals[0] = ae[0];
       oldVals[1] = ae[1];
       oldVals[2] = ae[2];
       oldVals[3] = ae[3];
+      lastBut = 4;
     }
-    writeMsg(data, 1);
+    if(lastBut == lastBut2){
+      Serial.println(lastBut);
+      writeMsg(data, lastBut);
+    }
+    
+    lastBut2 = lastBut;
+    
     while(vals[0]+vals[1]+vals[2]+vals[3] > 0){
       delay(1000/rerate);
       vals[0] = !digitalRead(2);
@@ -150,8 +162,11 @@ void loop() {
     lcd.setCursor(4, 0);
     String tempere = "temp:"+String(translation);
     lcd.print(tempere);
+    Serial.println("begin");
     readMsg(1);
-    Serial.println(testservo.read());
+    readMsg(2);
+    readMsg(3);
+    readMsg(4);
   }
   delay(1000/rerate);
   time += 1;
