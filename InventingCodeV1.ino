@@ -1,41 +1,6 @@
 #include <LiquidCrystal.h>
 #include <EEPROM.h>
 
-void erase(void)
-{
-  for (int i = 0 ; i < EEPROM.length() ; i++)
-  EEPROM.write(i, 0);
-}
-
-void printMessage(byte* first, size_t len)
-{
-  for (int i = 0; i < len; i++)
-  {
-  Serial.print((char)first[i]);
-  }
-}
-
-void writeMsg(byte* first, size_t len)
-{
-  for(int i = 0; i < len; i++)
-  {
-  EEPROM.write(i, first[i]);
-  }
-}
-
-void readMsg(size_t len)
-{
-  byte res;
- 
-  Serial.print("Message: ");
-  for(int i = 0; i < len; i++)
-  {
-  res = EEPROM.read(i);
-  Serial.print((char)res);
-  }
-  Serial.println("");
-}
-
 #include <Servo.h>
 
 Servo testservo;
@@ -91,9 +56,9 @@ void loop() {
   vals[3] = !digitalRead(5);
   
   if (vals[0]+vals[1]+vals[2]+vals[3] > 0){
-    char* data = "";
+    int data;
     if (oldVals[0] != vals[0]){
-      data = "1";
+      data = 1;
       oldVals[0] = ab[0];
       oldVals[1] = ab[1];
       oldVals[2] = ab[2];
@@ -101,7 +66,8 @@ void loop() {
       lastBut = 1;
     }
     else if (oldVals[1] != vals[1]){
-      data = "2";
+      Serial.println("2");
+      data = 2;
       oldVals[0] = ac[0];
       oldVals[1] = ac[1];
       oldVals[2] = ac[2];
@@ -109,7 +75,7 @@ void loop() {
       lastBut = 2;
     }
     else if (oldVals[2] != vals[2]){
-      data = "3";
+      data = 3;
       oldVals[0] = ad[0];
       oldVals[1] = ad[1];
       oldVals[2] = ad[2];
@@ -117,7 +83,7 @@ void loop() {
       lastBut = 3;
     }
     else if (oldVals[3] != vals[3]){
-      data = "4";
+      data = 4;
       oldVals[0] = ae[0];
       oldVals[1] = ae[1];
       oldVals[2] = ae[2];
@@ -126,7 +92,7 @@ void loop() {
     }
     if(lastBut == lastBut2){
       Serial.println(lastBut);
-      writeMsg(data, lastBut);
+      EEPROM.write(data, lastBut);
     }
     
     lastBut2 = lastBut;
@@ -163,10 +129,20 @@ void loop() {
     String tempere = "temp:"+String(translation);
     lcd.print(tempere);
     Serial.println("begin");
-    readMsg(1);
-    readMsg(2);
-    readMsg(3);
-    readMsg(4);
+    for(int i=1; i <= 4; i++){
+      int address = i;
+      byte value;
+      value = EEPROM.read(address);
+  
+      Serial.print(address);
+      Serial.print("\t");
+      Serial.print(value, DEC);
+      Serial.println();
+    }
+    Serial.print(lastBut);
+    Serial.print("\t");
+    Serial.print(lastBut2);
+    Serial.println();
   }
   delay(1000/rerate);
   time += 1;
